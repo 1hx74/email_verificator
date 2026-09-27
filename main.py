@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+import os
 import re
 import secrets
 import sqlite3
@@ -7,22 +8,28 @@ import time
 from contextlib import asynccontextmanager
 
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 
+import mail
 
-DB_PATH = "soap.db"
+load_dotenv()
 
-HOST = "0.0.0.0"
-PORT = 80
+DB_PATH = os.environ["DB_PATH"]
 
-CODE_TTL = 300
-MAX_VERIFY_ATTEMPTS = 5
-SEND_COOLDOWN = 60
+HOST = os.environ["HOST"]
+PORT = int(os.environ["PORT"])
 
-DB_CLEANUP_PERIOD = 600
+CODE_TTL = int(os.environ["CODE_TTL"])
+MAX_VERIFY_ATTEMPTS = int(os.environ["MAX_VERIFY_ATTEMPTS"])
+SEND_COOLDOWN = int(os.environ["SEND_COOLDOWN"])
+
+DB_CLEANUP_PERIOD = int(os.environ["DB_CLEANUP_PERIOD"])
+
+SUBJECT = os.environ["SUBJECT"]
 
 
 @asynccontextmanager
@@ -150,8 +157,11 @@ async def send_code(data: SendRequest):
         )
 
     try:
-        # TODO: отправка email
-        print(f"Verification code for {email}: {code}")
+        mail.send_email(
+                to=email,
+                subject=SUBJECT,
+                text=code
+            )
     except Exception:
         with get_db() as connection:
             connection.execute(
