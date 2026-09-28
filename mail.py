@@ -1,5 +1,8 @@
 import os
 import smtplib
+
+from pathlib import Path
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
 from dotenv import load_dotenv
@@ -10,12 +13,26 @@ load_dotenv()
 GMAIL = os.environ["GMAIL"]
 APP_PASSWORD = os.environ["APP_PASSWORD"]
 
+CODE_TTL = int(os.environ["CODE_TTL"])
+HTML_FILE = Path(__file__).parent / "verification.html"
+html = HTML_FILE.read_text(encoding="utf-8")
 
-def send_email(to: str, subject: str, text: str):
-    msg = MIMEText(text, "plain", "utf-8")
+
+def send_email(to: str, code: str):
+    global html
+    html = html.replace("{{CODE}}", code).replace("{{TTL}}", str(int(CODE_TTL / 60)))
+
+
+    msg = MIMEMultipart("alternative")
+
     msg["From"] = GMAIL
     msg["To"] = to
-    msg["Subject"] = Header(subject, "utf-8")
+    msg["Subject"] = Header("Код подтверждения", "utf-8")
+
+    text = f"Ваш код подтверждения: {code}\nКод действителен {int(CODE_TTL / 60)} минут."
+
+    msg.attach(MIMEText(text, "plain", "utf-8"))
+    msg.attach(MIMEText(html, "html", "utf-8"))
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(GMAIL, APP_PASSWORD)
@@ -25,6 +42,5 @@ def send_email(to: str, subject: str, text: str):
 if __name__ == "__main__":
     send_email(
         to="maryin.kolya2017@gmail.com",
-        subject="Тест",
-        text="gjrf! Это письмо отправлено автоматически из Python."
+        code="123456"
     )

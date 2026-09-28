@@ -159,8 +159,7 @@ async def send_code(data: SendRequest):
     try:
         mail.send_email(
                 to=email,
-                subject=SUBJECT,
-                text=code
+                code=code
             )
     except Exception:
         with get_db() as connection:

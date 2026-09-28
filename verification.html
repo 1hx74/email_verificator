@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>Код подтверждения</title>
+<style>
+  @media (max-width:480px) {
+    .card { padding:28px 20px 26px !important; }
+    .code { font-size:30px !important; letter-spacing:6px !important; }
+    .h1 { font-size:23px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#fbf6f2;-webkit-text-size-adjust:100%;">
+
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#fbf6f2;font-size:1px;line-height:1px;">
+  Ваш код: {{CODE}}. Действует {{TTL}} мин.
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fbf6f2" style="background-color:#fbf6f2;">
+<tr><td align="center" style="padding:48px 16px;background-color:#fbf6f2;background-image:radial-gradient(circle 300px at 0% 0%,#ffd9c6 299px,rgba(255,255,255,0) 300px),radial-gradient(circle 340px at 100% 100%,#ffc7ab 339px,rgba(255,255,255,0) 340px);background-repeat:no-repeat;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+
+    <tr><td bgcolor="#ffffff" style="background-color:#ffffff;background-image:none;background-repeat:no-repeat;border-radius:8px;border:1px solid #f1e8e1;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr><td class="card" style="padding:40px 36px 34px;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+          <h1 class="h1" style="margin:0 0 10px;color:#1a1614;font-size:26px;line-height:1.25;font-weight:700;letter-spacing:-.3px;">
+            Ваш код подтверждения
+          </h1>
+          <p style="margin:0 0 26px;color:#6b635d;font-size:15px;line-height:1.55;">
+            Введите его на странице, чтобы продолжить.
+          </p>
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#faf8f6"
+                 style="background-color:#faf8f6;border:1px solid #efeae5;border-radius:6px;">
+            <tr><td align="center" style="padding:26px 12px 28px;">
+              <div style="margin:0 0 10px;color:#8a817a;font-size:13px;line-height:1;">Одноразовый код</div>
+              <div class="code" style="color:#1a1614;font-size:38px;line-height:1.1;font-weight:700;letter-spacing:9px;text-indent:9px;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;">
+                {{CODE}}
+              </div>
+            </td></tr>
+          </table>
+
+          <p style="margin:16px 0 0;color:#6b635d;font-size:14px;line-height:1.5;text-align:center;">
+            Код действителен <strong style="color:#e4572e;">{{TTL}} мин.</strong>
+          </p>
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fff3ed"
+                 style="margin-top:28px;background-color:#fff3ed;border:1px solid #f7d3c3;border-radius:6px;">
+            <tr>
+              <td width="44" valign="top" align="center" style="padding:16px 0 16px 14px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                  <td width="22" height="22" align="center" valign="middle" bgcolor="#e4572e"
+                      style="width:22px;height:22px;border-radius:6px;background-color:#e4572e;color:#ffffff;font-size:13px;font-weight:700;line-height:22px;">!</td>
+                </tr></table>
+              </td>
+              <td style="padding:15px 16px 15px 8px;color:#4a2a1c;font-size:13px;line-height:1.55;">
+                <strong style="color:#1a1614;">Никому не сообщайте код.</strong>
+                Сотрудники поддержки никогда не просят его назвать. Если вы не запрашивали вход, просто проигнорируйте это письмо.
+              </td>
+            </tr>
+          </table>
+
+        </td></tr>
+      </table>
+    </td></tr>
+
+    <tr><td align="center" style="padding:22px 16px 0;color:#a0958c;font-size:12px;line-height:1.6;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+      Это автоматическое письмо, отвечать на него не нужно.
+    </td></tr>
+
+  </table>
+
+</td></tr>
+</table>
+
+</body>
+</html>
