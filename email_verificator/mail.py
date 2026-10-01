@@ -15,13 +15,13 @@ APP_PASSWORD = os.environ["APP_PASSWORD"]
 
 CODE_TTL = int(os.environ["CODE_TTL"])
 HTML_FILE = Path(__file__).parent / "verification.html"
-html = HTML_FILE.read_text(encoding="utf-8")
+HTML_TEMPLATE = HTML_FILE.read_text(encoding="utf-8")
 
 
 def send_email(to: str, code: str):
-    global html
-    html = html.replace("{{CODE}}", code).replace("{{TTL}}", str(int(CODE_TTL / 60)))
+    ttl_minutes = str(int(CODE_TTL / 60))
 
+    body = HTML_TEMPLATE.replace("{{CODE}}", code).replace("{{TTL}}", ttl_minutes)
 
     msg = MIMEMultipart("alternative")
 
@@ -29,10 +29,10 @@ def send_email(to: str, code: str):
     msg["To"] = to
     msg["Subject"] = Header("Код подтверждения", "utf-8")
 
-    text = f"Ваш код подтверждения: {code}\nКод действителен {int(CODE_TTL / 60)} минут."
+    text = f"Ваш код подтверждения: {code}\nКод действителен {ttl_minutes} минут."
 
     msg.attach(MIMEText(text, "plain", "utf-8"))
-    msg.attach(MIMEText(html, "html", "utf-8"))
+    msg.attach(MIMEText(body, "html", "utf-8"))
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(GMAIL, APP_PASSWORD)

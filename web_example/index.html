@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Подтверждение email</title>
+</head>
+<body>
+
+<h1>Подтверждение email</h1>
+
+<!-- шаг 1: email -->
+<form id="email-form" novalidate>
+    <label>
+        Email:
+        <input type="email" id="email" required placeholder="example@mail.com">
+    </label>
+    <button type="submit">Отправить код</button>
+</form>
+
+<!-- шаг 2: код -->
+<form id="code-form" hidden novalidate>
+    <p id="code-hint"></p>
+    <label>
+        Код:
+        <input type="text" id="code" inputmode="numeric" maxlength="6" placeholder="123456">
+    </label>
+    <button type="submit">Далее</button>
+    <p>
+        <button type="button" id="change-email">Изменить email</button>
+        <button type="button" id="resend">Отправить код ещё раз</button>
+    </p>
+</form>
+
+<!-- шаг 3: готово -->
+<div id="done" hidden>
+    <p><span style="font-size: 2em">✅</span> Email подтверждён: <span id="done-email"></span></p>
+    <button type="button" id="restart">Подтвердить другой email</button>
+</div>
+
+<p id="error" role="alert" hidden></p>
+
+<script>
+    const API_URL = "http://localhost:2345";
+
+    const $ = (id) => document.getElementById(id);
+    const steps = { email: $("email-form"), code: $("code-form"), done: $("done") };
+    const errorBox = $("error");
+
+    let email = "";
+
+    function showStep(name) {
+        for (const key in steps) steps[key].hidden = key !== name;
+        setError("");
+        if (name === "email") $("email").focus();
+        if (name === "code") $("code").focus();
+    }
+
+    function setError(text) {
+        errorBox.textContent = text;
+        errorBox.hidden = !text;
+    }
+
+    function setBusy(form, busy) {
+        form.querySelectorAll("button, input").forEach((el) => (el.disabled = busy));
+    }
+
+    async function post(path, body) {
+        const response = await fetch(API_URL + path, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+        let data = {};
+        try { data = await response.json(); } catch (_) {}
+        return { status: response.status, data };
+    }
+
+    // отправка кода: POST /api/mail/send
+    async function sendCode(address, form) {
+        setError("");
+        setBusy(form, true);
+        try {
+            const { status, data } = await post("/api/mail/send", { email: address });
+
+            if (status === 200) {
+                email = address;
+                $("code-hint").textContent = `Код отправлен на ${address}`;
+                $("code").value = "";
+                showStep("code");
+            } else if (status === 429) {
+                setError(`Слишком частые запросы (${data.state}). Подождите и повторите позже.`);
+            } else if (status === 400) {
+                setError("Некорректный email.");
+            } else if (status === 503) {
+                setError("Не удалось отправить письмо. Попробуйте позже.");
+            } else {
+                setError(`Ошибка сервера: HTTP ${status}.`);
+            }
+        } catch (_) {
+            setError("Не удалось связаться с сервером.");
+        } finally {
+            setBusy(form, false);
+        }
+    }
+
+    steps.email.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const address = $("email").value.trim();
+        if (!address) return setError("Введите email.");
+        sendCode(address, steps.email);
+    });
+
+    $("resend").addEventListener("click", () => sendCode(email, steps.code));
+
+    // проверка кода: POST /api/mail/verify
+    $("code").addEventListener("input", (e) => {
+        e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
+    });
+
+    steps.code.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const code = $("code").value;
+        if (code.length !== 6) return setError("Код должен состоять из 6 цифр.");
+
+        setError("");
+        setBusy(steps.code, true);
+        try {
+            const { status, data } = await post("/api/mail/verify", {
+                email: email,
+                verification_code: code
+            });
+
+            if (status === 200 && data.verification === true) {
+                $("done-email").textContent = email;
+                showStep("done");
+                return;
+            }
+
+            $("code").value = "";
+            if (status === 200) setError("Неверный код.");
+            else if (status === 404) setError("Код не найден. Запросите новый.");
+            else if (status === 410) setError("Срок действия кода истёк. Запросите новый.");
+            else if (status === 429) setError("Слишком много попыток. Запросите новый код.");
+            else if (status === 400) setError("Некорректный запрос.");
+            else setError(`Ошибка сервера: HTTP ${status}.`);
+        } catch (_) {
+            setError("Не удалось связаться с сервером.");
+        } finally {
+            setBusy(steps.code, false);
+            if (!steps.code.hidden) $("code").focus();
+        }
+    });
+
+    // возврат в начало
+    function restart(keepEmail) {
+        if (!keepEmail) $("email").value = "";
+        showStep("email");
+    }
+
+    $("change-email").addEventListener("click", () => restart(true));
+    $("restart").addEventListener("click", () => restart(false));
+</script>
+
+</body>
+</html>

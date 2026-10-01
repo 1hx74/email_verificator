@@ -1,0 +1,16 @@
+services:
+  email_verificator:
+    build:
+      context: .
+      dockerfile: email_verificator/Dockerfile
+    ports:
+      - "2345:2345"
+
+  web_example:
+    build:
+      context: .
+      dockerfile: web_example/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - email_verificator
