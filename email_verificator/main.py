@@ -30,8 +30,6 @@ SEND_COOLDOWN = int(os.environ["SEND_COOLDOWN"])
 
 DB_CLEANUP_PERIOD = int(os.environ["DB_CLEANUP_PERIOD"])
 
-SUBJECT = os.environ["SUBJECT"]
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
