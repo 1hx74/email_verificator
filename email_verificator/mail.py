@@ -37,10 +37,3 @@ def send_email(to: str, code: str):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(GMAIL, APP_PASSWORD)
         smtp.send_message(msg)
-
-
-if __name__ == "__main__":
-    send_email(
-        to="maryin.kolya2017@gmail.com",
-        code="123456"
-    )
